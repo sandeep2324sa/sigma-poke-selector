@@ -22,7 +22,6 @@ import {
   Tab,
   Autocomplete,
   TextField,
-  Grid,
   Card,
   CardContent,
   CardMedia,
@@ -83,8 +82,15 @@ const Footer = () => {
       }}
     >
       <Container maxWidth="lg">
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={4}>
+        <Box sx={{ 
+          display: 'flex', 
+          flexWrap: 'wrap', 
+          gap: 4 
+        }}>
+          <Box sx={{ 
+            flex: { xs: '1 1 100%', md: '1 1 33.333%' },
+            minWidth: { xs: '100%', md: '33.333%' }
+          }}>
             <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
               <CatchingPokemon sx={{ fontSize: 28, mr: 1, color: "#3B82F6" }} />
               <Typography variant="h6" fontWeight="bold">
@@ -108,8 +114,11 @@ const Footer = () => {
                 <Instagram />
               </IconButton>
             </Box>
-          </Grid>
-          <Grid item xs={6} md={2}>
+          </Box>
+          <Box sx={{ 
+            flex: { xs: '1 1 50%', md: '1 1 16.666%' },
+            minWidth: { xs: '50%', md: '16.666%' }
+          }}>
             <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
               Explore
             </Typography>
@@ -131,8 +140,11 @@ const Footer = () => {
                 </Box>
               ))}
             </Box>
-          </Grid>
-          <Grid item xs={6} md={2}>
+          </Box>
+          <Box sx={{ 
+            flex: { xs: '1 1 50%', md: '1 1 16.666%' },
+            minWidth: { xs: '50%', md: '16.666%' }
+          }}>
             <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
               Resources
             </Typography>
@@ -154,8 +166,11 @@ const Footer = () => {
                 </Box>
               ))}
             </Box>
-          </Grid>
-          <Grid item xs={12} md={4}>
+          </Box>
+          <Box sx={{ 
+            flex: { xs: '1 1 100%', md: '1 1 33.333%' },
+            minWidth: { xs: '100%', md: '33.333%' }
+          }}>
             <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
               Subscribe to our newsletter
             </Typography>
@@ -193,8 +208,8 @@ const Footer = () => {
                 Subscribe
               </Button>
             </Box>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
         <Box
           sx={{
             mt: 4,

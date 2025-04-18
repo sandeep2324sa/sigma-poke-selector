@@ -359,11 +359,10 @@ const handleAdd = async () => {
         setCurrentSelection(null)
       }
     } else {
-      // Search by type
+
       setIsLoading(true)
       const fetchedByType = await fetchPokemonsByType(currentSelection)
-  
-      // Filter out already selected ones
+
       const newOnes = fetchedByType.filter(
         p => !selectedPokemons.some(sp => sp.name === p.name)
       )
@@ -378,7 +377,7 @@ const handleAdd = async () => {
 
   const handleSubmit = () => {
     setIsLoading(true)
-    // Simulate API call
+
     setTimeout(() => {
       setIsLoading(false)
       setSubmitted(true)
