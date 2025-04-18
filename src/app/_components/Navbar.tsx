@@ -57,7 +57,7 @@ const Navbar = () => {
                 WebkitTextFillColor: "transparent",
               }}
             >
-              PokeSelector
+              PokéSelector 
             </Typography>
           </Box>
         </Box>

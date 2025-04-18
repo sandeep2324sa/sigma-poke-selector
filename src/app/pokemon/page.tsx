@@ -246,7 +246,7 @@ export default function PokemonSelector() {
   const [submitted, setSubmitted] = useState(false)
 
   const [page, setPage] = useState(1)
-  const itemsPerPage = 5
+  const itemsPerPage = 4
   const [displayedPokemons, setDisplayedPokemons] = useState<Pokemon[]>([])
   const totalPages = submitted ? Math.ceil(selectedPokemons.length / itemsPerPage) : 0
 
@@ -261,6 +261,12 @@ export default function PokemonSelector() {
   const handleFilterChange = (event: React.SyntheticEvent, newValue: number) => {
     setFilterType(newValue)
     setCurrentSelection(null)
+    
+    // Clear selected pokemons and reset submitted state when switching tabs
+    setSelectedPokemons([])
+    setSubmitted(false)
+    setDisplayedPokemons([])
+    setPage(1)
   }
 
   const fetchPokemonData = async (name: string): Promise<Pokemon | null> => {
@@ -405,333 +411,385 @@ const handleAdd = async () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-        <Navbar/>
+      <Box sx={{ 
+        minHeight: "100vh", 
+        display: "flex", 
+        flexDirection: "column",
+        position: "relative",
+      }}>
+        {/* Background image with overlay */}
+        <Box sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundImage: 'url("https://static.vecteezy.com/system/resources/previews/024/625/582/non_2x/cute-yellow-mouse-character-background-free-vector.jpg")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
+          backgroundRepeat: 'no-repeat',
+          opacity: 0.7,
+          zIndex: 0,
+        }} />
+        
+        {/* Light overlay */}
+        <Box sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(255, 255, 255, 0.6)",
+          zIndex: 1,
+        }} />
+        
+        {/* Content */}
+        <Box sx={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+          <Navbar/>
 
-        <Container maxWidth="lg" sx={{ py: 4, flexGrow: 1 }}>
-          <Box
-            component={motion.div}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            sx={{
-              mb: 6,
-              textAlign: "center",
-              background: "linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)",
-              borderRadius: 4,
-              p: 4,
-              color: "white",
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
+          <Container maxWidth="lg" sx={{ py: 4, flexGrow: 1 }}>
             <Box
+              component={motion.div}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
               sx={{
-                position: "absolute",
-                top: -20,
-                right: -20,
-                width: 120,
-                height: 120,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.1)",
-                zIndex: 0,
-              }}
-            />
-            <Box
-              sx={{
-                position: "absolute",
-                bottom: -30,
-                left: -30,
-                width: 150,
-                height: 150,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.1)",
-                zIndex: 0,
-              }}
-            />
-
-            <Box sx={{ position: "relative", zIndex: 1 }}>
-              <Typography variant="h4" component="h1" gutterBottom>
-                Pokemon Selector
-              </Typography>
-              <Typography variant="body1">Select your favorite Pokémon and build your dream team!</Typography>
-            </Box>
-          </Box>
-
-          <Paper
-            elevation={0}
-            sx={{
-              p: 3,
-              mb: 4,
-              borderRadius: 3,
-              boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-              position: "relative",
-            }}
-          >
-            <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
-              <Tabs
-                value={filterType}
-                onChange={handleFilterChange}
-                aria-label="filter tabs"
-                centered
-                sx={{
-                  "& .MuiTabs-indicator": {
-                    height: 3,
-                    borderRadius: 1.5,
-                  },
-                }}
-              >
-                <Tab label="Search by Name" icon={<Search />} iconPosition="start" sx={{ fontWeight: 600 }} />
-                <Tab label="Search by Type" icon={<Search />} iconPosition="start" sx={{ fontWeight: 600 }} />
-              </Tabs>
-            </Box>
-
-            <Box sx={{ p: 2 }}>
-              {filterType === 0 ? (
-                <Autocomplete
-                  value={currentSelection}
-                  onChange={(event, newValue) => {
-                    setCurrentSelection(newValue)
-                  }}
-                  options={pokemonData.map((p) => p.name)}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Select Pokémon"
-                      variant="outlined"
-                      fullWidth
-                      sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
-                    />
-                  )}
-                />
-              ) : (
-                <Autocomplete
-                  value={currentSelection}
-                  onChange={(event, newValue) => {
-                    setCurrentSelection(newValue)
-                  }}
-                  options={pokemonTypes}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Select Pokémon Type"
-                      variant="outlined"
-                      fullWidth
-                      sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
-                    />
-                  )}
-                />
-              )}
-            </Box>
-
-            <Box
-              sx={{
-                position: "absolute",
-                right: 24,
-                bottom: -28,
-                zIndex: 2,
+                mb: 6,
+                textAlign: "center",
+                background: "linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)",
+                borderRadius: 4,
+                p: 4,
+                color: "white",
+                position: "relative",
+                overflow: "hidden",
               }}
             >
-              <Tooltip title="Add Pokémon">
-                <Fab
-                  color="primary"
-                  aria-label="add"
-                  onClick={handleAdd}
-                  disabled={!currentSelection}
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: -20,
+                  right: -20,
+                  width: 120,
+                  height: 120,
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,0.1)",
+                  zIndex: 0,
+                }}
+              />
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: -30,
+                  left: -30,
+                  width: 150,
+                  height: 150,
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,0.1)",
+                  zIndex: 0,
+                }}
+              />
+
+              <Box sx={{ position: "relative", zIndex: 1 }}>
+                <Typography variant="h4" component="h1" gutterBottom>
+                  Pokémon Selector
+                </Typography>
+                <Typography variant="body1">Select your favorite Pokémon and build your dream team!</Typography>
+              </Box>
+            </Box>
+
+            <Paper
+              elevation={0}
+              sx={{
+                p: 3,
+                mb: 4,
+                borderRadius: 3,
+                boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                position: "relative",
+                backgroundColor: "rgba(255, 255, 255, 0.85)",
+                backdropFilter: "blur(5px)",
+              }}
+            >
+              <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+                <Tabs
+                  value={filterType}
+                  onChange={handleFilterChange}
+                  aria-label="filter tabs"
+                  centered
                   sx={{
-                    background: "linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)",
-                    "&:hover": {
-                      background: "linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)",
+                    "& .MuiTabs-indicator": {
+                      height: 3,
+                      borderRadius: 1.5,
                     },
                   }}
                 >
-                  <Add />
-                </Fab>
-              </Tooltip>
-            </Box>
-          </Paper>
+                  <Tab label="Search by Name" icon={<Search />} iconPosition="start" sx={{ fontWeight: 600 }} />
+                  <Tab label="Search by Type" icon={<Search />} iconPosition="start" sx={{ fontWeight: 600 }} />
+                </Tabs>
+              </Box>
 
-          {/* Action buttons in a more visually appealing layout */}
-          <Box
-            component={motion.div}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              gap: { xs: 1, sm: 2 },
-              mt: 5,
-              mb: 4,
-            }}
-          >
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={handleSubmit}
-              disabled={selectedPokemons.length === 0 || isLoading}
-              startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <Send />}
-              sx={{
-                background: "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
-                "&:hover": {
-                  background: "linear-gradient(135deg, #D97706 0%, #B45309 100%)",
-                },
-                px: 4,
-                py: 1.5,
-                fontSize: "1rem",
-              }}
-            >
-              Submit Team
-            </Button>
+              <Box sx={{ p: 2 }}>
+                {filterType === 0 ? (
+                  <Autocomplete
+                    value={currentSelection}
+                    onChange={(event, newValue) => {
+                      setCurrentSelection(newValue)
+                    }}
+                    options={pokemonData.map((p) => p.name)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Pokémon"
+                        variant="outlined"
+                        fullWidth
+                        sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
+                      />
+                    )}
+                  />
+                ) : (
+                  <Autocomplete
+                    value={currentSelection}
+                    onChange={(event, newValue) => {
+                      setCurrentSelection(newValue)
+                    }}
+                    options={pokemonTypes}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Pokémon Type"
+                        variant="outlined"
+                        fullWidth
+                        sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
+                      />
+                    )}
+                  />
+                )}
+              </Box>
 
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={handleClearTags}
-              disabled={selectedPokemons.length === 0}
-              startIcon={<Clear />}
-              sx={{
-                borderWidth: 2,
-                "&:hover": {
-                  borderWidth: 2,
-                },
-              }}
-            >
-              Clear Tags
-            </Button>
-
-            <Button
-              variant="outlined"
-              color="secondary"
-              onClick={handleClearPokemons}
-              disabled={!submitted}
-              startIcon={<Refresh />}
-              sx={{
-                borderWidth: 2,
-                "&:hover": {
-                  borderWidth: 2,
-                },
-              }}
-            >
-              Reset
-            </Button>
-          </Box>
-
-          <AnimatePresence>
-            {selectedPokemons.length > 0 && (
               <Box
-                component={motion.div}
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.5 }}
-                sx={{ mb: 4, overflow: "hidden" }}
+                sx={{
+                  position: "absolute",
+                  right: 24,
+                  bottom: -28,
+                  zIndex: 2,
+                }}
               >
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 3,
-                    borderRadius: 3,
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-                  }}
+                <Tooltip title="Add Pokémon">
+                  <Fab
+                    color="primary"
+                    aria-label="add"
+                    onClick={handleAdd}
+                    disabled={!currentSelection}
+                    sx={{
+                      background: "linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)",
+                      "&:hover": {
+                        background: "linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)",
+                      },
+                    }}
+                  >
+                    <Add />
+                  </Fab>
+                </Tooltip>
+              </Box>
+            </Paper>
+
+            {/* Action buttons in a more visually appealing layout */}
+            <Box
+              component={motion.div}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                justifyContent: "center",
+                gap: { xs: 2, sm: 2 },
+                mt: 5,
+                mb: 4,
+                width: "100%",
+              }}
+            >
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleSubmit}
+                disabled={selectedPokemons.length === 0 || isLoading}
+                startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <Send />}
+                sx={{
+                  background: "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
+                  "&:hover": {
+                    background: "linear-gradient(135deg, #D97706 0%, #B45309 100%)",
+                  },
+                  px: { xs: 2, sm: 4 },
+                  py: 1.5,
+                  fontSize: { xs: "0.875rem", sm: "1rem" },
+                  width: { xs: "100%", sm: "auto" },
+                }}
+              >
+                Submit Team
+              </Button>
+
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleClearTags}
+                disabled={selectedPokemons.length === 0}
+                startIcon={<Clear />}
+                sx={{
+                  background: "linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)",
+                  "&:hover": {
+                    background: "linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)",
+                  },
+                  px: { xs: 2, sm: 4 },
+                  py: 1.5,
+                  fontSize: { xs: "0.875rem", sm: "1rem" },
+                  width: { xs: "100%", sm: "auto" },
+                }}
+              >
+                Clear Tags
+              </Button>
+
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleClearPokemons}
+                disabled={!submitted}
+                startIcon={<Refresh />}
+                sx={{
+                  background: "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
+                  "&:hover": {
+                    background: "linear-gradient(135deg, #D97706 0%, #B45309 100%)",
+                  },
+                  px: { xs: 2, sm: 4 },
+                  py: 1.5,
+                  fontSize: { xs: "0.875rem", sm: "1rem" },
+                  width: { xs: "100%", sm: "auto" },
+                }}
+              >
+                Reset
+              </Button>
+            </Box>
+
+            <AnimatePresence>
+              {selectedPokemons.length > 0 && (
+                <Box
+                  component={motion.div}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.5 }}
+                  sx={{ mb: 4, overflow: "hidden" }}
                 >
-                  <Typography variant="h6" gutterBottom>
-                    Selected Pokemons:
-                  </Typography>
-                  <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-                    {selectedPokemons.map((pokemon) => {
-                      const typeInfo = typeColors[pokemon.type as keyof typeof typeColors] || typeColors.Normal
-                      return (
-                        <Chip
-                          key={pokemon.name}
-                          label={pokemon.name}
-                          onDelete={() => handleDelete(pokemon)}
-                          sx={{
-                            background: typeInfo.gradient,
-                            color: "white",
-                            fontWeight: "bold",
-                            "& .MuiChip-deleteIcon": {
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 3,
+                      borderRadius: 3,
+                      boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                      backgroundColor: "rgba(255, 255, 255, 0.85)",
+                      backdropFilter: "blur(5px)",
+                    }}
+                  >
+                    <Typography variant="h6" gutterBottom>
+                      Selected Pokémons:
+                    </Typography>
+                    <Box sx={{ display: "flex", flexWrap: "wrap" }}>
+                      {selectedPokemons.map((pokemon) => {
+                        const typeInfo = typeColors[pokemon.type as keyof typeof typeColors] || typeColors.Normal
+                        return (
+                          <Chip
+                            key={pokemon.name}
+                            label={pokemon.name}
+                            onDelete={() => handleDelete(pokemon)}
+                            sx={{
+                              background: typeInfo.gradient,
                               color: "white",
+                              fontWeight: "bold",
+                              "& .MuiChip-deleteIcon": {
+                                color: "white",
+                              },
+                            }}
+                          />
+                        )
+                      })}
+                    </Box>
+                  </Paper>
+                </Box>
+              )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+              {submitted && (
+                <Box
+                  component={motion.div}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 4,
+                      borderRadius: 3,
+                      boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                      backgroundColor: "rgba(255, 255, 255, 0.85)",
+                      backdropFilter: "blur(5px)",
+                    }}
+                  >
+                    <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
+                      Your Pokémon Team
+                    </Typography>
+
+                    <Box sx={{ 
+                      display: 'grid', 
+                      gridTemplateColumns: { 
+                        xs: '1fr', 
+                        sm: 'repeat(2, 1fr)', 
+                        md: 'repeat(4, 1fr)' 
+                      },
+                      gap: 3
+                    }}>
+                      {displayedPokemons.map((pokemon, index) => (
+                        <Box key={pokemon.name}>
+                          <PokemonCard pokemon={pokemon} index={index} typeColors={typeColors}/>
+                        </Box>
+                      ))}
+                    </Box>
+
+                    {totalPages > 1 && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          mt: 4,
+                          pt: 2,
+                          borderTop: "1px solid #E2E8F0",
+                        }}
+                      >
+                        <Pagination
+                          count={totalPages}
+                          page={page}
+                          onChange={handlePageChange}
+                          color="primary"
+                          size="large"
+                          showFirstButton
+                          showLastButton
+                          sx={{
+                            "& .MuiPaginationItem-root": {
+                              fontWeight: 600,
                             },
                           }}
                         />
-                      )
-                    })}
-                  </Box>
-                </Paper>
-              </Box>
-            )}
-          </AnimatePresence>
-
-          <AnimatePresence>
-            {submitted && (
-              <Box
-                component={motion.div}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
-              >
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 4,
-                    borderRadius: 3,
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-                  }}
-                >
-                  <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
-                    Your Pokemon Team
-                  </Typography>
-
-                  <Box sx={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: { 
-                      xs: '1fr', 
-                      sm: 'repeat(2, 1fr)', 
-                      md: 'repeat(4, 1fr)' 
-                    },
-                    gap: 3
-                  }}>
-                    {displayedPokemons.map((pokemon, index) => (
-                      <Box key={pokemon.name}>
-                        <PokemonCard pokemon={pokemon} index={index} typeColors={typeColors}/>
                       </Box>
-                    ))}
-                  </Box>
-
-                  {totalPages > 1 && (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        mt: 4,
-                        pt: 2,
-                        borderTop: "1px solid #E2E8F0",
-                      }}
-                    >
-                      <Pagination
-                        count={totalPages}
-                        page={page}
-                        onChange={handlePageChange}
-                        color="primary"
-                        size="large"
-                        showFirstButton
-                        showLastButton
-                        sx={{
-                          "& .MuiPaginationItem-root": {
-                            fontWeight: 600,
-                          },
-                        }}
-                      />
-                    </Box>
-                  )}
-                </Paper>
-              </Box>
-            )}
-          </AnimatePresence>
-        </Container>
-       <Footer/>
+                    )}
+                  </Paper>
+                </Box>
+              )}
+            </AnimatePresence>
+          </Container>
+         {/* <Footer/> */}
+        </Box>
       </Box>
     </ThemeProvider>
   )
