@@ -247,6 +247,9 @@ export default function PokemonSelector() {
   const [displayedPokemons, setDisplayedPokemons] = useState<Pokemon[]>([])
   const totalPages = submitted ? Math.ceil(selectedPokemons.length / itemsPerPage) : 0
 
+  const [lastSelectedType, setLastSelectedType] = useState<string | null>(null)
+  const [pokemonCount, setPokemonCount] = useState(5)
+
   useEffect(() => {
     if (submitted) {
       const startIndex = (page - 1) * itemsPerPage
@@ -291,27 +294,34 @@ export default function PokemonSelector() {
     }
   }
 
-  const fetchPokemonsByType = async (type: string): Promise<Pokemon[]> => {
+  const fetchPokemonsByType = async (type: string, count = 5): Promise<Pokemon[]> => {
     try {
+      setIsLoading(true)
       const res = await fetch(`https://pokeapi.co/api/v2/type/${type.toLowerCase()}`)
       const data = await res.json() as TypeApiResponse
-  
+
       const pokemons: Pokemon[] = []
-  
-      const selectedEntries = data.pokemon.slice(0, 10)
-  
-      for (const entry of selectedEntries) {
-        const name = entry.pokemon.name
-        const pokemonDetails = await fetchPokemonData(name)
-        if (pokemonDetails) {
-          pokemons.push(pokemonDetails)
+      
+      const selectedEntries = data.pokemon.slice(0, count)
+      
+      const pokemonPromises = selectedEntries.map(entry => 
+        fetchPokemonData(entry.pokemon.name)
+      )
+      
+      const results = await Promise.all(pokemonPromises)
+      
+      results.forEach(result => {
+        if (result) {
+          pokemons.push(result)
         }
-      }
-  
+      })
+
       return pokemons
     } catch (err) {
       console.error("Error fetching Pokémons by type:", err)
       return []
+    } finally {
+      setIsLoading(false)
     }
   }
   
@@ -320,34 +330,62 @@ const handleAdd = async () => {
     if (!currentSelection) return
   
     if (filterType === 0) {
-      // Search by name
       const exists = selectedPokemons.find(p => p.name.toLowerCase() === currentSelection.toLowerCase())
       if (!exists) {
         setIsLoading(true)
-        const fetched = await fetchPokemonData(currentSelection)
-        if (fetched) {
-          setSelectedPokemons(prev => [...prev, fetched])
+        try {
+          const fetched = await fetchPokemonData(currentSelection)
+          if (fetched) {
+            setSelectedPokemons(prev => [...prev, fetched])
+          }
+        } catch (error) {
+          console.error("Error adding Pokémon:", error)
+        } finally {
+          setIsLoading(false)
+          setCurrentSelection(null)
         }
-        setIsLoading(false)
-        setCurrentSelection(null)
       }
     } else {
+      try {
+        setLastSelectedType(currentSelection)
+        setPokemonCount(5)
+        
+        const fetchedByType = await fetchPokemonsByType(currentSelection, 5)
 
+        const newOnes = fetchedByType.filter(
+          p => !selectedPokemons.some(sp => sp.name === p.name)
+        )
+    
+        setSelectedPokemons(prev => [...prev, ...newOnes])
+        setCurrentSelection(null)
+      } catch (error) {
+        console.error("Error adding Pokémon by type:", error)
+      }
+    }
+  }
+  
+  const handleLoadMore = async () => {
+    if (!lastSelectedType) return
+    
+    try {
       setIsLoading(true)
-      const fetchedByType = await fetchPokemonsByType(currentSelection)
+      const newCount = pokemonCount + 5
+      setPokemonCount(newCount)
+      
+      const fetchedByType = await fetchPokemonsByType(lastSelectedType, newCount)
 
       const newOnes = fetchedByType.filter(
         p => !selectedPokemons.some(sp => sp.name === p.name)
       )
-  
+
       setSelectedPokemons(prev => [...prev, ...newOnes])
+    } catch (error) {
+      console.error("Error loading more Pokémon:", error)
+    } finally {
       setIsLoading(false)
-      setCurrentSelection(null)
     }
   }
   
-  
-
   const handleSubmit = () => {
     setIsLoading(true)
 
@@ -551,7 +589,7 @@ const handleAdd = async () => {
                     color="primary"
                     aria-label="add"
                     onClick={handleAdd}
-                    disabled={!currentSelection}
+                    disabled={!currentSelection || isLoading}
                     sx={{
                       background: "linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)",
                       "&:hover": {
@@ -559,7 +597,7 @@ const handleAdd = async () => {
                       },
                     }}
                   >
-                    <Add />
+                    {isLoading ? <CircularProgress size={24} color="inherit" /> : <Add />}
                   </Fab>
                 </Tooltip>
               </Box>
@@ -688,6 +726,30 @@ const handleAdd = async () => {
                 </Box>
               )}
             </AnimatePresence>
+
+            {selectedPokemons.length > 0 && lastSelectedType && filterType === 1 && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 4 }}>
+                <Button
+                  variant="contained"
+                  onClick={handleLoadMore}
+                  disabled={isLoading}
+                  startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <Add />}
+                  sx={{
+                    borderRadius: 2,
+                    px: 4,
+                    py: 1.5,
+                    fontWeight: 600,
+                    bgcolor: '#2E3743',
+                    color: '#FFFFFF',
+                    '&:hover': {
+                      bgcolor: '#1E2530',
+                    },
+                  }}
+                >
+                  Load More {lastSelectedType} Pokémon
+                </Button>
+              </Box>
+            )}
 
             <AnimatePresence>
               {submitted && (
