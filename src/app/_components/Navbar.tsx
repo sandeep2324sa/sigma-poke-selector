@@ -32,7 +32,6 @@ const Navbar = () => {
       }}
     >
       <Toolbar sx={{ justifyContent: "space-between" }}>
-        {/* Logo + App Name */}
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Box
             component={motion.div}
@@ -62,12 +61,11 @@ const Navbar = () => {
           </Box>
         </Box>
 
-        {/* Right Actions */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Tooltip title="GitHub">
             <IconButton
               component="a"
-              href="https://github.com/sandeep2324sa"
+              href="https://github.com/sandeep2324sa/sigma-poke-selector"
               target="_blank"
               rel="noopener noreferrer"
             >

@@ -11,7 +11,6 @@ import {
 } from "@mui/material"
 import { motion } from 'framer-motion'
 
-// Define Pokemon interface
 interface Pokemon {
   name: string;
   type: string;
@@ -52,7 +51,6 @@ const PokemonCard = ({ pokemon, index, typeColors }: {
           overflow: "hidden",
         }}
       >
-        {/* Top Gradient Bar */}
         <Box
           sx={{
             background: typeInfo?.gradient ?? defaultType.gradient,
@@ -61,7 +59,6 @@ const PokemonCard = ({ pokemon, index, typeColors }: {
           }}
         />
 
-        {/* Pokémon Image */}
         <CardMedia
           component="img"
           height="160"
@@ -70,7 +67,6 @@ const PokemonCard = ({ pokemon, index, typeColors }: {
           sx={{ objectFit: "contain", p: 1 }}
         />
 
-        {/* Stats as Bars */}
         <CardContent sx={{ flexGrow: 1, pb: 2 }}>
           <Typography variant="h6" component="div" align="center" gutterBottom>
           {pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}
@@ -99,7 +95,6 @@ const PokemonCard = ({ pokemon, index, typeColors }: {
           </Box>
         </CardContent>
 
-        {/* Type Hover Info */}
         <Box
           component={motion.div}
           variants={variants}
