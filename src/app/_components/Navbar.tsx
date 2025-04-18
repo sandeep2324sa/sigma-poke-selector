@@ -7,7 +7,6 @@ import {
   IconButton,
   Typography,
   Box,
-  Avatar,
   Tooltip,
 } from "@mui/material"
 import {

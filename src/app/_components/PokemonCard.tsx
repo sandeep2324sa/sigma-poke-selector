@@ -11,14 +11,27 @@ import {
 } from "@mui/material"
 import { motion } from 'framer-motion'
 
+// Define Pokemon interface
+interface Pokemon {
+  name: string;
+  type: string;
+  image?: string;
+  stats?: { name: string; value: number }[];
+}
+
 const variants = {
   initial: { opacity: 0, y: 60 },
   hover: { opacity: 1, y: 0 },
 }
 
-const PokemonCard = ({ pokemon, index, typeColors }: { pokemon: Pokemon; index: number }) => {
+const PokemonCard = ({ pokemon, index, typeColors }: { 
+  pokemon: Pokemon; 
+  index: number; 
+  typeColors: Record<string, { main: string; gradient: string; icon: React.ReactNode }> 
+}) => {
     console.log("pokemon",pokemon)
-  const typeInfo = typeColors[pokemon.type as keyof typeof typeColors] || typeColors.Normal
+  const typeInfo = typeColors[pokemon.type] ?? typeColors.Normal
+  const defaultType = typeColors.Normal ?? { main: '#D1D5DB', gradient: 'linear-gradient(135deg, #D1D5DB 0%, #9CA3AF 100%)', icon: null }
 
   return (
     <Box
@@ -42,7 +55,7 @@ const PokemonCard = ({ pokemon, index, typeColors }: { pokemon: Pokemon; index: 
         {/* Top Gradient Bar */}
         <Box
           sx={{
-            background: typeInfo.gradient,
+            background: typeInfo?.gradient ?? defaultType.gradient,
             height: "8px",
             width: "100%",
           }}
@@ -64,7 +77,7 @@ const PokemonCard = ({ pokemon, index, typeColors }: { pokemon: Pokemon; index: 
           </Typography>
 
           <Box>
-            {pokemon.stats.map((stat) => (
+            {pokemon.stats?.map((stat: { name: string; value: number }) => (
               <Box key={stat.name} sx={{ mb: 1 }}>
                 <Typography variant="body2" color="text.secondary">
                   {stat.name.toUpperCase()}
@@ -77,7 +90,7 @@ const PokemonCard = ({ pokemon, index, typeColors }: { pokemon: Pokemon; index: 
                     borderRadius: 5,
                     backgroundColor: '#E5E7EB',
                     '& .MuiLinearProgress-bar': {
-                      backgroundColor: typeInfo.main,
+                      backgroundColor: typeInfo?.main ?? defaultType.main,
                     },
                   }}
                 />
@@ -96,7 +109,7 @@ const PokemonCard = ({ pokemon, index, typeColors }: { pokemon: Pokemon; index: 
             bottom: 0,
             left: 0,
             right: 0,
-            background: typeInfo.gradient,
+            background: typeInfo?.gradient ?? defaultType.gradient,
             color: "#FFF",
             p: 2,
             display: "flex",
@@ -105,7 +118,7 @@ const PokemonCard = ({ pokemon, index, typeColors }: { pokemon: Pokemon; index: 
             gap: 1,
           }}
         >
-          {typeInfo.icon}
+          {typeInfo?.icon}
           <Typography variant="body1" fontWeight="bold">
             {pokemon.type}
           </Typography>

@@ -13,7 +13,6 @@ import {
   Tab,
   Autocomplete,
   TextField,
-  Grid,
   CircularProgress,
   Pagination,
   Fab,
@@ -36,7 +35,6 @@ import {
   Air,
   Pets,
   AutoAwesome,
-  Menu as MenuIcon,
 } from "@mui/icons-material"
 import Footer from "../_components/Footer"
 import Navbar from "../_components/Navbar"
@@ -46,13 +44,51 @@ import PokemonCard from "../_components/PokemonCard"
 interface Pokemon {
     name: string
     type: string 
-    types: string[]
-    image: string
-    height: number
-    weight: number
-    abilities: string[]
-    stats: { name: string; value: number }[]
+    types?: string[]
+    image?: string
+    height?: number
+    weight?: number
+    abilities?: string[]
+    stats?: { name: string; value: number }[]
   }
+
+// API response types
+interface PokemonApiResponse {
+  name: string;
+  types: Array<{
+    type: {
+      name: string;
+    };
+  }>;
+  sprites: {
+    other: {
+      "official-artwork": {
+        front_default: string;
+      };
+    };
+  };
+  height: number;
+  weight: number;
+  abilities: Array<{
+    ability: {
+      name: string;
+    };
+  }>;
+  stats: Array<{
+    stat: {
+      name: string;
+    };
+    base_stat: number;
+  }>;
+}
+
+interface TypeApiResponse {
+  pokemon: Array<{
+    pokemon: {
+      name: string;
+    };
+  }>;
+}
 
 const pokemonData: Pokemon[] = [
   { name: "Pikachu", type: "Electric" },
@@ -230,17 +266,19 @@ export default function PokemonSelector() {
   const fetchPokemonData = async (name: string): Promise<Pokemon | null> => {
     try {
       const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${name.toLowerCase()}`)
-      const data = await res.json()
+      const data = await res.json() as PokemonApiResponse
   
       return {
         name: data.name,
-        type: data.types[0].type.name.charAt(0).toUpperCase() + data.types[0].type.name.slice(1), // e.g., "Fire"
-        types: data.types.map((t: any) => t.type.name),
+        type: data?.types[0]?.type?.name ? 
+          data.types[0].type.name.charAt(0).toUpperCase() + data.types[0].type.name.slice(1) : 
+          "Normal", // e.g., "Fire"
+        types: data.types.map((t) => t.type.name),
         image: data.sprites.other["official-artwork"].front_default,
         height: data.height,
         weight: data.weight,
-        abilities: data.abilities.map((a: any) => a.ability.name),
-        stats: data.stats.map((s: any) => ({
+        abilities: data.abilities.map((a) => a.ability.name),
+        stats: data.stats.map((s) => ({
           name: s.stat.name,
           value: s.base_stat,
         })),
@@ -255,7 +293,7 @@ export default function PokemonSelector() {
   const fetchPokemonsByType = async (type: string): Promise<Pokemon[]> => {
     try {
       const res = await fetch(`https://pokeapi.co/api/v2/type/${type.toLowerCase()}`)
-      const data = await res.json()
+      const data = await res.json() as TypeApiResponse
   
       const pokemons: Pokemon[] = []
   
@@ -647,13 +685,21 @@ const handleAdd = async () => {
                     Your Pokemon Team
                   </Typography>
 
-                  <Grid container spacing={3}>
+                  <Box sx={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: { 
+                      xs: '1fr', 
+                      sm: 'repeat(2, 1fr)', 
+                      md: 'repeat(4, 1fr)' 
+                    },
+                    gap: 3
+                  }}>
                     {displayedPokemons.map((pokemon, index) => (
-                      <Grid item xs={12} sm={6} md={3} key={pokemon.name}>
+                      <Box key={pokemon.name}>
                         <PokemonCard pokemon={pokemon} index={index} typeColors={typeColors}/>
-                      </Grid>
+                      </Box>
                     ))}
-                  </Grid>
+                  </Box>
 
                   {totalPages > 1 && (
                     <Box
